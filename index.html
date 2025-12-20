@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ШР ДШБ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Roboto', 'sans-serif'],
+          },
+          colors: {
+            // Google Material 3 inspired palette
+            surface: {
+              light: '#FDFDFD',
+              DEFAULT: '#F3F6FC', // Surface Container Low
+              dim: '#E3E6EC',
+              dark: '#1B1B1F'
+            },
+            primary: {
+              DEFAULT: '#0B57D0', // Google Blue
+              container: '#D3E3FD',
+              onContainer: '#041E49',
+              light: '#A8C7FA'
+            },
+            outline: {
+              DEFAULT: '#747775',
+              variant: '#C4C7C5'
+            },
+            // Semantic colors for military status
+            status: {
+              green: '#146C2E', // Google Green
+              greenContainer: '#C4EED0',
+              red: '#B3261E',   // Google Red
+              redContainer: '#F9DEDC',
+              yellow: '#E8B004',
+              purple: '#93000A', // Used for vacant
+              purpleContainer: '#FFDAD6' // Actually reusing red tone for Vacant usually, but lets stick to purple logic
+            }
+          },
+          boxShadow: {
+            'elevation-1': '0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15)',
+            'elevation-2': '0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15)',
+            'elevation-3': '0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3)',
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; }
+    
+    /* Modern Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #C4C7C5;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #747775;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://esm.sh/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://esm.sh/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://esm.sh/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://esm.sh/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://esm.sh/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://esm.sh/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^21.0.6?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^21.0.6?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^21.0.6?external=rxjs",
+    "@google/genai": "https://next.esm.sh/@google/genai@^1.34.0?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^21.0.6?external=rxjs",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^21.0.6?external=rxjs",
+    "d3": "https://esm.sh/d3@7.9.0?conditions=es2015"
+  }
+}
+</script>
+</head>
+<body class="bg-surface text-[#1F1F1F] h-screen overflow-hidden">
+  <app-root></app-root>
+</body>
+</html>
