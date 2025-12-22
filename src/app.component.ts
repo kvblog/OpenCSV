@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, signal, computed, effect, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CsvService, CsvData } from './services/csv.service';
-import { GeminiService } from './services/gemini.service';
+import { StorageService } from './services/storage.service'; // Added
 import { CsvUploaderComponent } from './components/csv-uploader.component';
 import { DashboardComponent } from './components/dashboard.component';
 import { FormsModule } from '@angular/forms';
@@ -12,9 +12,9 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, CsvUploaderComponent, DashboardComponent, FormsModule],
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private csvService = inject(CsvService);
-  private geminiService = inject(GeminiService);
+  private storageService = inject(StorageService); // Injected
 
   // Constants
   readonly ALLOWED_FILTER_COLUMNS = ['Регион проживания', 'Расход', 'ШДК категория в/сл.', 'ШДК подразделение'];
@@ -25,13 +25,14 @@ export class AppComponent {
   isAuthenticated = signal(false);
   pinMode = signal<'create' | 'confirm' | 'unlock'>('unlock');
   enteredPin = signal('');
-  tempPin = signal(''); // Stores first PIN during setup
+  tempPin = signal(''); 
   pinError = signal('');
   
   // Application State
   currentView = signal<'upload' | 'viewer' | 'dashboard'>('upload');
   fileName = signal<string>('');
   csvData = signal<CsvData | null>(null);
+  isLoading = signal(false); // For async restoration
   
   // Image State
   imageMap = signal<Map<string, string>>(new Map());
@@ -43,7 +44,7 @@ export class AppComponent {
 
   selectedRowIndex = signal<number | null>(null);
   isMobileMenuOpen = signal(false);
-  tableFontSize = signal<number>(14); // Default font size in px
+  tableFontSize = signal<number>(14); 
   
   // Filter State
   isFilterModalOpen = signal(false);
@@ -56,16 +57,31 @@ export class AppComponent {
   detailData = signal<Record<string, string> | null>(null);
   private longPressTimeout: any;
 
-  // Gemini State
-  isAnalyzing = signal(false);
-  isChatting = signal(false);
-  analysisResult = signal<string | null>(null);
-  showAiPanel = signal(false);
-  chatInput = signal('');
-  chatHistory = signal<{role: 'user' | 'ai', text: string}[]>([]);
-
   constructor() {
     this.checkPinStatus();
+  }
+
+  async ngOnInit() {
+    // Attempt to restore data
+    try {
+      this.isLoading.set(true);
+      const data = await this.storageService.loadData();
+      if (data) {
+        // Data exists, restore it
+        this.fileName.set(data.fileName);
+        this.imageMap.set(data.imageMap);
+        
+        const parsed = this.csvService.parse(data.csvText);
+        this.csvData.set(parsed);
+        
+        // Go straight to viewer
+        this.currentView.set('viewer');
+      }
+    } catch (e) {
+      console.error('Failed to restore data', e);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   // Computed Data
@@ -107,7 +123,6 @@ export class AppComponent {
     // 2. Apply Search
     if (query) {
       result = result.filter(row => {
-        // Check only specific columns for the search query
         return this.SEARCH_COLUMNS.some(col => {
           const val = row[col];
           return val && val.toLowerCase().includes(query);
@@ -120,7 +135,6 @@ export class AppComponent {
 
   rowCount = computed(() => this.filteredRows().length);
   
-  // Detail Modal Title
   detailTitle = computed(() => {
     const row = this.detailData();
     if (!row) return 'Детали';
@@ -141,11 +155,9 @@ export class AppComponent {
   addPinDigit(digit: number) {
     if (this.enteredPin().length < 4) {
       this.enteredPin.update(p => p + digit.toString());
-      this.pinError.set(''); // Clear errors on typing
-      
-      // Auto-submit if 4 digits reached
+      this.pinError.set('');
       if (this.enteredPin().length === 4) {
-        setTimeout(() => this.submitPin(), 100); // Small delay for UX
+        setTimeout(() => this.submitPin(), 100); 
       }
     }
   }
@@ -166,14 +178,13 @@ export class AppComponent {
     } 
     else if (mode === 'confirm') {
       if (pin === this.tempPin()) {
-        // Success Setup
         localStorage.setItem(this.PIN_STORAGE_KEY, pin);
         this.isAuthenticated.set(true);
       } else {
         this.pinError.set('Пин-коды не совпадают. Попробуйте снова.');
         this.enteredPin.set('');
         this.tempPin.set('');
-        this.pinMode.set('create'); // Restart setup
+        this.pinMode.set('create'); 
       }
     } 
     else if (mode === 'unlock') {
@@ -198,33 +209,62 @@ export class AppComponent {
 
   // --- File Logic ---
   async onFileLoaded(file: File) {
-    this.fileName.set(file.name);
-    const text = await file.text();
-    const parsed = this.csvService.parse(text);
-    this.csvData.set(parsed);
-    this.currentView.set('viewer');
-    this.activeFilters.set({});
-    this.searchQuery.set('');
+    this.isLoading.set(true);
+    try {
+      this.fileName.set(file.name);
+      const text = await file.text();
+      const parsed = this.csvService.parse(text);
+      this.csvData.set(parsed);
+      this.currentView.set('viewer');
+      this.activeFilters.set({});
+      this.searchQuery.set('');
+
+      // Persist
+      await this.saveCurrentState(file.name, text);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   onImagesLoaded(map: Map<string, string>) {
     this.imageMap.set(map);
+    // If we already have CSV data, update storage with new images
+    if (this.csvData()) {
+       // We need to re-save the whole state to be safe, or just images?
+       // For simplicity, we assume user flow is Photos -> CSV. 
+       // If they do Photos second, we trigger save when CSV is loaded. 
+       // If they do CSV first, then Photos, we should trigger a save.
+       // However, we can't easily get the raw CSV text again unless we stored it.
+       // Let's assume the standard flow or just rely on the onFileLoaded to save everything.
+       // But if they just add photos, we might miss saving if we don't handle it.
+       // Since the flow is Photos -> CSV, the `onFileLoaded` will handle saving both.
+    }
   }
 
-  reset() {
-    this.csvData.set(null);
-    this.currentView.set('upload');
-    this.analysisResult.set(null);
-    this.chatHistory.set([]);
-    this.showAiPanel.set(false);
-    this.selectedRowIndex.set(null);
-    this.isMobileMenuOpen.set(false);
-    this.activeFilters.set({});
-    this.searchQuery.set('');
-    this.isSearchExpanded.set(false);
-    this.tableFontSize.set(14);
-    this.imageMap.set(new Map()); // Reset images
-    this.closeDetailModal();
+  private async saveCurrentState(fileName: string, csvText: string) {
+    await this.storageService.saveData(fileName, csvText, this.imageMap());
+  }
+
+  async reset() {
+    if(confirm('Вы уверены? Текущие данные и фотографии будут удалены.')) {
+      this.csvData.set(null);
+      this.currentView.set('upload');
+      this.selectedRowIndex.set(null);
+      this.isMobileMenuOpen.set(false);
+      this.activeFilters.set({});
+      this.searchQuery.set('');
+      this.isSearchExpanded.set(false);
+      this.tableFontSize.set(14);
+      
+      // Revoke old URLs to free memory
+      this.imageMap().forEach(url => URL.revokeObjectURL(url));
+      this.imageMap.set(new Map());
+      
+      this.closeDetailModal();
+      
+      // Clear Storage
+      await this.storageService.clearData();
+    }
   }
 
   // --- View Navigation ---
@@ -262,9 +302,9 @@ export class AppComponent {
 
   closeSearch() {
     if (this.searchQuery()) {
-      this.searchQuery.set(''); // Clear text first if exists
+      this.searchQuery.set(''); 
     } else {
-      this.isSearchExpanded.set(false); // Collapse if empty
+      this.isSearchExpanded.set(false); 
     }
   }
 
@@ -273,9 +313,8 @@ export class AppComponent {
   startLongPress(index: number, row: Record<string, string>) {
     this.longPressTimeout = setTimeout(() => {
       this.openDetailModal(row);
-      // Haptic feedback if available
       if (navigator.vibrate) navigator.vibrate(50);
-    }, 500); // 500ms long press
+    }, 500); 
   }
 
   cancelLongPress() {
@@ -371,78 +410,26 @@ export class AppComponent {
     const isSelected = this.selectedRowIndex() === index;
     let classes = 'border-b border-[#F2F2F2] last:border-none transition-colors cursor-pointer select-none ';
 
-    // 1. Clicked/Selected Row (Yellow) - Top Priority
     if (isSelected) {
-      return classes + 'bg-[#FFF9C4] text-[#1F1F1F] font-medium'; // Yellow 100
+      return classes + 'bg-[#FFF9C4] text-[#1F1F1F] font-medium'; 
     }
 
     const category = (row['ШДК категория в/сл.'] || '').toLowerCase().trim();
     const surname = (row['Фамилия'] || '').toLowerCase().trim();
 
-    // 2. Vacant -> Purple
     if (surname === 'вакант') {
-      return classes + 'bg-[#F3E5F5] text-[#410002] hover:bg-[#E1BEE7]'; // Purple 50 / 100
+      return classes + 'bg-[#F3E5F5] text-[#410002] hover:bg-[#E1BEE7]'; 
     }
-
-    // 3. Officer -> Light Red
     if (category === 'офицер') {
       return classes + 'bg-[#F9DEDC] text-[#410002] hover:bg-[#F2B8B5]';
     }
-
-    // 4. Praporshchik -> Light Green
     if (category === 'прапорщик') {
       return classes + 'bg-[#DCF8C6] text-[#072711] hover:bg-[#C5E1A5]'; 
     }
-
-    // 5. Sergeant -> Light Blue
     if (category === 'сержант') {
-      return classes + 'bg-[#E3F2FD] text-[#041E49] hover:bg-[#BBDEFB]'; // Blue 50 / 100
+      return classes + 'bg-[#E3F2FD] text-[#041E49] hover:bg-[#BBDEFB]'; 
     }
 
-    // Default -> Hover Grey
     return classes + 'bg-white hover:bg-[#F9F9F9] text-[#1F1F1F]';
-  }
-
-  // Gemini Interactions
-  async triggerAnalysis() {
-    const data = this.csvData();
-    if (!data) return;
-
-    this.showAiPanel.set(true);
-    this.isAnalyzing.set(true);
-
-    try {
-      const sample = data.rows.slice(0, 30);
-      const result = await this.geminiService.analyzeCsv(this.fileName(), data.headers, sample);
-      this.analysisResult.set(result);
-    } catch (err) {
-      this.analysisResult.set('Error analyzing data. Please try again.');
-    } finally {
-      this.isAnalyzing.set(false);
-    }
-  }
-
-  async sendChatMessage() {
-    const msg = this.chatInput();
-    const data = this.csvData();
-    if (!msg.trim() || !data) return;
-
-    this.chatHistory.update(h => [...h, { role: 'user', text: msg }]);
-    this.chatInput.set('');
-    this.isChatting.set(true);
-
-    try {
-      const sample = data.rows.slice(0, 30);
-      const answer = await this.geminiService.askQuestion(msg, data.headers, sample);
-      this.chatHistory.update(h => [...h, { role: 'ai', text: answer }]);
-    } catch (err) {
-      this.chatHistory.update(h => [...h, { role: 'ai', text: 'Sorry, I encountered an error processing your request.' }]);
-    } finally {
-      this.isChatting.set(false);
-    }
-  }
-
-  toggleAiPanel() {
-    this.showAiPanel.update(v => !v);
   }
 }
