@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, effect, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CsvService, CsvData } from './services/csv.service';
-import { StorageService } from './services/storage.service'; // Added
+import { StorageService } from './services/storage.service';
 import { CsvUploaderComponent } from './components/csv-uploader.component';
 import { DashboardComponent } from './components/dashboard.component';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class AppComponent implements OnInit {
   private csvService = inject(CsvService);
-  private storageService = inject(StorageService); // Injected
+  private storageService = inject(StorageService);
 
   // Constants
   readonly ALLOWED_FILTER_COLUMNS = ['Регион проживания', 'Расход', 'ШДК категория в/сл.', 'ШДК подразделение'];
@@ -56,6 +56,10 @@ export class AppComponent implements OnInit {
   isDetailModalOpen = signal(false);
   detailData = signal<Record<string, string> | null>(null);
   private longPressTimeout: any;
+
+  // Copy Feedback State
+  showCopyToast = signal(false);
+  copyToastMessage = signal('');
 
   constructor() {
     this.checkPinStatus();
@@ -228,20 +232,9 @@ export class AppComponent implements OnInit {
 
   onImagesLoaded(map: Map<string, string>) {
     this.imageMap.set(map);
-    // If we already have CSV data, update storage with new images
-    if (this.csvData()) {
-       // We need to re-save the whole state to be safe, or just images?
-       // For simplicity, we assume user flow is Photos -> CSV. 
-       // If they do Photos second, we trigger save when CSV is loaded. 
-       // If they do CSV first, then Photos, we should trigger a save.
-       // However, we can't easily get the raw CSV text again unless we stored it.
-       // Let's assume the standard flow or just rely on the onFileLoaded to save everything.
-       // But if they just add photos, we might miss saving if we don't handle it.
-       // Since the flow is Photos -> CSV, the `onFileLoaded` will handle saving both.
-    }
   }
 
-  private async saveCurrentState(fileName: string, csvText: string) {
+  private async saveCurrentState(fileName: string, csvText: string): Promise<void> {
     await this.storageService.saveData(fileName, csvText, this.imageMap());
   }
 
@@ -332,6 +325,38 @@ export class AppComponent implements OnInit {
   closeDetailModal() {
     this.isDetailModalOpen.set(false);
     this.detailData.set(null);
+  }
+
+  // Trigger visual feedback (green circle)
+  triggerCopySuccess() {
+    this.showCopyToast.set(true);
+    setTimeout(() => this.showCopyToast.set(false), 1500);
+  }
+
+  copyToClipboard(text: string, label: string) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      // Just trigger visual, no text needed for the circle toast
+      this.triggerCopySuccess();
+    }).catch(err => {
+      console.error('Copy failed', err);
+    });
+  }
+
+  // Special method for Name Click
+  copyFullInfo(row: Record<string, string>) {
+    if (!row) return;
+    const role = row['Должность'] || '';
+    const rank = row['Воинское звание'] || '';
+    const surname = row['Фамилия'] || '';
+    const name = row['Имя'] || '';
+    const patronymic = row['Отчество'] || '';
+
+    const fullString = `${role} ${rank} ${surname} ${name} ${patronymic}`.replace(/\s+/g, ' ').trim();
+    
+    if (fullString) {
+      this.copyToClipboard(fullString, 'Данные');
+    }
   }
 
   // --- Filter Logic ---
@@ -431,5 +456,46 @@ export class AppComponent implements OnInit {
     }
 
     return classes + 'bg-white hover:bg-[#F9F9F9] text-[#1F1F1F]';
+  }
+
+  // --- Helper Methods for Modal Display ---
+  
+  getPhotoUrl(person: any): string {
+    if (!person) return '';
+    const map = this.imageMap();
+    const surname = (person['Фамилия'] || '').trim();
+    const name = (person['Имя'] || '').trim();
+    const patronymic = (person['Отчество'] || '').trim();
+
+    if (surname.toLowerCase() === 'вакант') {
+      if (map.has('Вакант.jpg')) return map.get('Вакант.jpg')!;
+      if (map.has('nophoto.jpg')) return map.get('nophoto.jpg')!;
+    }
+
+    const filename = `${surname}${name}${patronymic}.jpg`;
+    if (map.has(filename)) return map.get(filename)!;
+    if (map.has('nophoto.jpg')) return map.get('nophoto.jpg')!;
+
+    return `https://via.placeholder.com/400x500?text=${encodeURIComponent(surname || 'No Photo')}`;
+  }
+
+  getAgeLabel(ageStr: string): string {
+    if (!ageStr || ageStr.trim() === '' || ageStr === '--') return '--';
+    const age = parseInt(ageStr, 10);
+    if (isNaN(age)) return ageStr;
+
+    let suffix = 'лет';
+    const lastDigit = age % 10;
+    const lastTwoDigits = age % 100;
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+      suffix = 'лет';
+    } else if (lastDigit === 1) {
+      suffix = 'год';
+    } else if (lastDigit >= 2 && lastDigit <= 4) {
+      suffix = 'года';
+    }
+
+    return `${age} ${suffix}`;
   }
 }
