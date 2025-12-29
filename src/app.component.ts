@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, effect, ViewChild, ElementRef, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CsvService, CsvData } from './services/csv.service';
 import { StorageService } from './services/storage.service';
@@ -10,9 +10,11 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, CsvUploaderComponent, DashboardComponent, FormsModule],
-  templateUrl: './app.component.html'
+  templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
+  protected readonly Math = Math; // Expose Math to template
   private csvService = inject(CsvService);
   private storageService = inject(StorageService);
 
@@ -224,7 +226,7 @@ export class AppComponent implements OnInit {
       this.searchQuery.set('');
 
       // Persist
-      await this.saveCurrentState(file.name, text);
+      await this.saveCurrentState(file.name, text, this.imageMap());
     } finally {
       this.isLoading.set(false);
     }
@@ -234,30 +236,29 @@ export class AppComponent implements OnInit {
     this.imageMap.set(map);
   }
 
-  private async saveCurrentState(fileName: string, csvText: string): Promise<void> {
-    await this.storageService.saveData(fileName, csvText, this.imageMap());
+  private async saveCurrentState(fileName: string, csvText: string, images: Map<string, string>): Promise<void> {
+    await this.storageService.saveData(fileName, csvText, images);
   }
 
   async reset() {
-    if(confirm('Вы уверены? Текущие данные и фотографии будут удалены.')) {
-      this.csvData.set(null);
-      this.currentView.set('upload');
-      this.selectedRowIndex.set(null);
-      this.isMobileMenuOpen.set(false);
-      this.activeFilters.set({});
-      this.searchQuery.set('');
-      this.isSearchExpanded.set(false);
-      this.tableFontSize.set(14);
-      
-      // Revoke old URLs to free memory
-      this.imageMap().forEach(url => URL.revokeObjectURL(url));
-      this.imageMap.set(new Map());
-      
-      this.closeDetailModal();
-      
-      // Clear Storage
-      await this.storageService.clearData();
-    }
+    // Immediate reset without confirmation
+    this.csvData.set(null);
+    this.currentView.set('upload');
+    this.selectedRowIndex.set(null);
+    this.isMobileMenuOpen.set(false);
+    this.activeFilters.set({});
+    this.searchQuery.set('');
+    this.isSearchExpanded.set(false);
+    this.tableFontSize.set(14);
+    
+    // Revoke old URLs to free memory
+    this.imageMap().forEach(url => URL.revokeObjectURL(url));
+    this.imageMap.set(new Map());
+    
+    this.closeDetailModal();
+    
+    // Clear Storage
+    await this.storageService.clearData();
   }
 
   // --- View Navigation ---
@@ -346,11 +347,31 @@ export class AppComponent implements OnInit {
   // Special method for Name Click
   copyFullInfo(row: Record<string, string>) {
     if (!row) return;
-    const role = row['Должность'] || '';
-    const rank = row['Воинское звание'] || '';
-    const surname = row['Фамилия'] || '';
-    const name = row['Имя'] || '';
-    const patronymic = row['Отчество'] || '';
+
+    // Helper: Sentence case (First upper, rest lower)
+    const toSentenceCase = (str: string) => {
+      if (!str) return '';
+      const lower = str.toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    };
+
+    // Helper: Title Case (Every word starts with Upper)
+    const toTitleCase = (str: string) => {
+      if (!str) return '';
+      return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    };
+
+    // 1. Role: First word capitalized, rest lowercase
+    const roleRaw = (row['Должность'] || '').trim();
+    const role = toSentenceCase(roleRaw);
+
+    // 2. Rank: All lowercase
+    const rank = (row['Воинское звание'] || '').trim().toLowerCase();
+
+    // 3. Name: Title Case
+    const surname = toTitleCase(row['Фамилия'] || '');
+    const name = toTitleCase(row['Имя'] || '');
+    const patronymic = toTitleCase(row['Отчество'] || '');
 
     const fullString = `${role} ${rank} ${surname} ${name} ${patronymic}`.replace(/\s+/g, ' ').trim();
     
@@ -433,7 +454,8 @@ export class AppComponent implements OnInit {
   // --- Row Styling Logic ---
   getRowClasses(row: Record<string, string>, index: number): string {
     const isSelected = this.selectedRowIndex() === index;
-    let classes = 'border-b border-[#F2F2F2] last:border-none transition-colors cursor-pointer select-none ';
+    // Added even:bg-gray-50 for zebra striping
+    let classes = 'border-b border-[#E3E3E3] last:border-none transition-colors cursor-pointer select-none text-sm ';
 
     if (isSelected) {
       return classes + 'bg-[#FFF9C4] text-[#1F1F1F] font-medium'; 
@@ -455,7 +477,8 @@ export class AppComponent implements OnInit {
       return classes + 'bg-[#E3F2FD] text-[#041E49] hover:bg-[#BBDEFB]'; 
     }
 
-    return classes + 'bg-white hover:bg-[#F9F9F9] text-[#1F1F1F]';
+    // Default with zebra striping
+    return classes + 'bg-white even:bg-[#F9FAFB] hover:bg-[#F2F2F2] text-[#1F1F1F]';
   }
 
   // --- Helper Methods for Modal Display ---

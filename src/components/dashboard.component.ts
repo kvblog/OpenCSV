@@ -1,28 +1,29 @@
-import { Component, input, output, computed, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, input, output, computed, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Main scrollable container for everything -->
     <div 
-      class="h-full overflow-y-auto custom-scrollbar bg-surface px-4 py-6 scroll-smooth" 
+      class="h-full overflow-y-auto custom-scrollbar bg-[#F3F6FC] px-4 py-6 scroll-smooth" 
       (scroll)="onScroll($event)"
       #scrollContainer
     >
       
       <!-- Stats Section -->
-      <div class="mb-6 z-10 transition-all duration-300 ease-in-out">
+      <div class="mb-8 z-10 transition-all duration-300 ease-in-out">
         <!-- Stats Toggle Header -->
-        <div class="flex items-center justify-between mb-2 select-none cursor-pointer group" (click)="toggleStats()">
+        <div class="flex items-center justify-between mb-3 select-none cursor-pointer group" (click)="toggleStats()">
            <div class="flex items-center gap-2">
-             <h2 class="text-sm font-medium text-[#444746] uppercase tracking-wide">Статистика</h2>
-             <span class="text-xs bg-[#E3E3E3] px-2 py-0.5 rounded-full text-[#444746]">{{ totalRows() }} чел.</span>
+             <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest">Статистика</h2>
+             <span class="text-xs bg-gray-200 px-2.5 py-0.5 rounded-full text-gray-600 font-bold shadow-sm">{{ totalRows() }} чел.</span>
            </div>
            <button 
-             class="p-2 rounded-full text-[#444746] hover:bg-[#E3E3E3] transition-colors"
+             class="p-2 rounded-full text-gray-400 hover:bg-white hover:shadow-sm transition-all"
              title="{{ showStats() ? 'Скрыть статистику' : 'Показать статистику' }}"
            >
              <svg class="w-5 h-5 transition-transform duration-300" [class.rotate-180]="!showStats()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,90 +34,90 @@ import { CommonModule } from '@angular/common';
 
         <!-- Stats Grid (Collapsible) -->
         @if (showStats()) {
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 w-full max-w-7xl mx-auto animate-[slideDown_0.3s_ease-out]">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full max-w-7xl mx-auto animate-[slideDown_0.3s_ease-out]">
             
             <!-- 1. Total (По штату) -->
-            <div class="bg-surface-light p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center min-h-[72px]">
-              <span class="text-[10px] font-medium text-[#444746] uppercase tracking-wide mb-0.5 text-center leading-tight">По штату</span>
-              <span class="text-xl font-medium text-[#1F1F1F] leading-none">{{ totalRows() }}</span>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">По штату</span>
+              <span class="text-2xl font-bold text-gray-800">{{ totalRows() }}</span>
             </div>
 
             <!-- 2. Vacant (Вакант) -->
-            <div class="bg-[#FFDAD6] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#410002] min-h-[72px]">
-              <span class="text-[10px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">Вакант</span>
-              <span class="text-xl font-medium leading-none">{{ vacantPosCount() }}</span>
+            <div class="bg-purple-50 p-4 rounded-2xl shadow-sm border border-purple-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-purple-800/60 uppercase tracking-wider mb-1">Вакант</span>
+              <span class="text-2xl font-bold text-purple-900">{{ vacantPosCount() }}</span>
             </div>
 
             <!-- 3. Present (Налицо) -->
-            <div class="bg-[#C4EED0] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#072711] min-h-[72px]">
-              <span class="text-[10px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">Налицо</span>
-              <span class="text-xl font-medium leading-none">{{ presentCount() }}</span>
+            <div class="bg-emerald-50 p-4 rounded-2xl shadow-sm border border-emerald-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-emerald-800/60 uppercase tracking-wider mb-1">Налицо</span>
+              <span class="text-2xl font-bold text-emerald-900">{{ presentCount() }}</span>
             </div>
 
             <!-- 4. On Task (На задаче) -->
-            <div class="bg-[#E0F2F1] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#004D40] min-h-[72px]">
-              <span class="text-[10px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">На задаче</span>
-              <span class="text-xl font-medium leading-none">{{ onTaskCount() }}</span>
+            <div class="bg-teal-50 p-4 rounded-2xl shadow-sm border border-teal-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-teal-800/60 uppercase tracking-wider mb-1">На задаче</span>
+              <span class="text-2xl font-bold text-teal-900">{{ onTaskCount() }}</span>
             </div>
 
             <!-- 5. Recovery (Восстановление) -->
-            <div class="bg-[#FFF8E1] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#5D4037] min-h-[72px]">
-              <span class="text-[9px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">Восстановление</span>
-              <span class="text-xl font-medium leading-none">{{ recoveryCount() }}</span>
+            <div class="bg-amber-50 p-4 rounded-2xl shadow-sm border border-amber-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-amber-800/60 uppercase tracking-wider mb-1">Восстановление</span>
+              <span class="text-2xl font-bold text-amber-900">{{ recoveryCount() }}</span>
             </div>
 
             <!-- 6. Hospital (Госпиталь) -->
-            <div class="bg-[#FCE4EC] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#880E4F] min-h-[72px]">
-              <span class="text-[10px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">Госпиталь</span>
-              <span class="text-xl font-medium leading-none">{{ hospitalCount() }}</span>
+            <div class="bg-pink-50 p-4 rounded-2xl shadow-sm border border-pink-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-pink-800/60 uppercase tracking-wider mb-1">Госпиталь</span>
+              <span class="text-2xl font-bold text-pink-900">{{ hospitalCount() }}</span>
             </div>
 
             <!-- 7. Vacation (Отпуск) -->
-            <div class="bg-[#D3E3FD] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#041E49] min-h-[72px]">
-              <span class="text-[10px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">Отпуск</span>
-              <span class="text-xl font-medium leading-none">{{ vacationCount() }}</span>
+            <div class="bg-blue-50 p-4 rounded-2xl shadow-sm border border-blue-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-blue-800/60 uppercase tracking-wider mb-1">Отпуск</span>
+              <span class="text-2xl font-bold text-blue-900">{{ vacationCount() }}</span>
             </div>
             
             <!-- 8. SOCH (СОЧ) -->
-            <div class="bg-[#F9DEDC] p-2.5 rounded-xl shadow-elevation-1 flex flex-col items-center justify-center text-[#8C1D18] min-h-[72px]">
-              <span class="text-[10px] font-medium uppercase tracking-wide mb-0.5 opacity-80 text-center leading-tight">СОЧ</span>
-              <span class="text-xl font-medium leading-none">{{ sochCount() }}</span>
+            <div class="bg-red-50 p-4 rounded-2xl shadow-sm border border-red-100 flex flex-col items-center justify-center min-h-[80px]">
+              <span class="text-[10px] font-bold text-red-800/60 uppercase tracking-wider mb-1">СОЧ</span>
+              <span class="text-2xl font-bold text-red-900">{{ sochCount() }}</span>
             </div>
           </div>
         }
       </div>
 
       <!-- Personnel Cards Area -->
-      <div class="pb-20"> <!-- Extra padding for FAB -->
+      <div class="pb-24"> <!-- Extra padding for FAB -->
         <div class="max-w-7xl mx-auto">
           
-          <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-8">
             @for (group of groupedPersonnel(); track group.name) {
               <section class="animate-[fadeIn_0.3s_ease-out]">
-                <!-- Group Header (Clickable to Collapse) -->
+                <!-- Group Header -->
                 <div 
-                  class="flex items-center mb-4 cursor-pointer select-none group hover:bg-black/5 rounded-lg -ml-2 p-2 transition-colors"
+                  class="flex items-center mb-4 cursor-pointer select-none group hover:bg-white p-3 rounded-xl transition-all border border-transparent hover:border-gray-200 hover:shadow-sm"
                   (click)="toggleGroup(group.name)"
                 >
-                  <div class="mr-2 text-[#444746] transition-transform duration-300" [class.-rotate-90]="isGroupCollapsed(group.name)">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  <div class="mr-3 text-gray-400 transition-transform duration-300 bg-gray-100 rounded-full p-1" [class.-rotate-90]="isGroupCollapsed(group.name)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
-                  <h3 class="text-lg font-normal text-[#1F1F1F] pr-4 z-10 flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-gray-800 pr-4 z-10 flex items-center gap-3">
                     {{ group.name }} 
-                    <span class="text-xs font-medium bg-[#E3E3E3] text-[#444746] px-2 py-0.5 rounded-full">
+                    <span class="text-xs font-bold bg-gray-100 text-gray-500 px-2.5 py-1 rounded-md">
                       {{ group.rows.length }}
                     </span>
                   </h3>
-                  <div class="h-px bg-[#E3E3E3] flex-1"></div>
+                  <div class="h-px bg-gray-200 flex-1 ml-4 group-hover:bg-gray-300 transition-colors"></div>
                 </div>
 
-                <!-- Cards Grid (Collapsible) -->
+                <!-- Cards Grid -->
                 @if (!isGroupCollapsed(group.name)) {
-                  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 animate-[fadeIn_0.2s_ease-out]">
+                  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 animate-[fadeIn_0.2s_ease-out]">
                     @for (person of group.rows; track $index) {
-                      <!-- Material 3 Card with Long Press Logic -->
+                      <!-- Card -->
                       <div 
-                        class="relative flex flex-col rounded-[16px] sm:rounded-[24px] overflow-hidden transition-all duration-300 group shadow-elevation-1 hover:shadow-elevation-2 border cursor-pointer select-none"
+                        class="relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 group shadow-sm hover:shadow-lg border border-gray-100/50 cursor-pointer select-none bg-white"
                         [class]="getCardThemeClasses(person)"
                         (mousedown)="startLongPress(person)"
                         (touchstart)="startLongPress(person)"
@@ -126,74 +127,66 @@ import { CommonModule } from '@angular/common';
                         (click)="onCardClick(person)"
                       >
                         
-                        <!-- Photo Area (1:1 Aspect Ratio) -->
-                        <div class="w-full aspect-square bg-[#E3E3E3] relative overflow-hidden pointer-events-none">
+                        <!-- Photo Area (1:1) -->
+                        <div class="w-full aspect-square bg-gray-200 relative overflow-hidden pointer-events-none">
                           <img 
                             [src]="getPhotoUrl(person)" 
                             alt="Photo" 
+                            loading="lazy"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             onerror="this.src='https://via.placeholder.com/400x500?text=No+Photo'"
                           >
-                          <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-50"></div>
+                          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
                         </div>
 
-                        <!-- Content Body: Compact padding for mobile -->
-                        <div class="p-3 sm:p-5 flex flex-col flex-1 gap-1 pointer-events-none">
-                          
-                          <!-- 1. Military Rank (Moved ABOVE Name) -->
-                          <p class="uppercase text-[10px] sm:text-xs tracking-wider opacity-80 font-medium truncate">
-                             {{ person['Воинское звание'] || 'Звание не указано' }}
-                          </p>
+                        <!-- Content Body -->
+                        <div class="p-4 sm:p-5 flex flex-col flex-1 gap-1.5 pointer-events-none relative">
+                           <!-- Floating Rank Badge (Moved inside content slightly overlapping or just at top) -->
+                           <div class="absolute -top-8 left-4 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/20">
+                             <p class="uppercase text-[10px] font-bold tracking-widest text-gray-800">
+                               {{ person['Воинское звание'] || '---' }}
+                             </p>
+                           </div>
 
-                          <!-- 2. Name (Increased Size, Matched Font Style to Rank) -->
-                          <h3 class="text-sm sm:text-xl font-bold uppercase tracking-wide leading-tight line-clamp-2 mb-1">
+                          <!-- Name -->
+                          <h3 class="text-sm sm:text-lg font-extrabold uppercase tracking-wide leading-tight line-clamp-2 mt-1 text-gray-900">
                             {{ person['Фамилия'] || person['ФИО'] || 'Без фамилии' }} 
-                            {{ person['Имя'] || '' }} 
-                            {{ person['Отчество'] || '' }}
+                            <span class="font-medium text-gray-600 block text-xs sm:text-sm normal-case mt-0.5">{{ person['Имя'] || '' }} {{ person['Отчество'] || '' }}</span>
                           </h3>
 
-                          <!-- 3. Role (Description) -->
-                          <p class="text-[11px] sm:text-sm opacity-80 mb-2 leading-relaxed font-normal line-clamp-2">
+                          <!-- Role -->
+                          <p class="text-[11px] sm:text-xs text-gray-500 font-medium leading-relaxed line-clamp-2 mb-2 min-h-[2.5em]">
                             {{ person['Должность'] || 'Должность не указана' }}
                           </p>
 
                           <!-- Divider -->
-                          <div class="h-px bg-black/10 w-full my-1 hidden sm:block"></div>
+                          <div class="h-px bg-gray-100 w-full my-1"></div>
 
-                          <!-- Footer Row: Stats & Callsign -->
-                          <div class="mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 w-full">
-                            
-                            <!-- Left: Stats (Hidden on compact mobile grid) -->
-                            <div class="hidden sm:flex flex-col gap-1 text-xs opacity-70 font-medium">
-                              <div class="flex items-center gap-1.5" title="Личный номер">
-                                <span class="uppercase tracking-wider opacity-70">Л/Н:</span>
-                                <span>{{ person['Личный номер'] || '---' }}</span>
-                              </div>
-                              <div class="flex items-center gap-1.5" title="Возраст">
-                                <span class="uppercase tracking-wider opacity-70">Возраст:</span>
-                                <span>{{ getAgeLabel(person['Возраст'] || '') }}</span>
-                              </div>
+                          <!-- Footer -->
+                          <div class="mt-auto flex flex-col sm:flex-row sm:items-end justify-between gap-1 w-full">
+                            <!-- Stats -->
+                            <div class="flex flex-col gap-0.5 text-[10px] sm:text-xs text-gray-400 font-semibold">
+                              <span class="tracking-wider">Л/Н: <span class="text-gray-600 font-mono">{{ person['Личный номер'] || '---' }}</span></span>
+                              <span class="tracking-wider">Возраст: <span class="text-gray-600">{{ getAgeLabel(person['Возраст'] || '') }}</span></span>
                             </div>
 
-                            <!-- Right: Callsign (Aligned Right) -->
+                            <!-- Callsign -->
                             <div 
-                               class="text-[11px] sm:text-sm font-bold uppercase tracking-wide text-right self-end ml-auto truncate max-w-full"
+                               class="text-xs sm:text-sm font-black uppercase tracking-wide text-right self-end ml-auto truncate max-w-full"
                                [class]="getTextColorClass(person)"
                             >
                               {{ person['Позывной'] || '' }}
                             </div>
-
                           </div>
-
                         </div>
 
-                        <!-- Expense Status Badge: Increased Font Size -->
+                        <!-- Expense Status Badge -->
                         @if (person['Расход']) {
                            <div 
-                             class="absolute top-1 right-1 sm:top-4 sm:right-4 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm"
+                             class="absolute top-2 right-2 sm:top-3 sm:right-3 px-2.5 py-1 rounded-md shadow-sm border border-white/20 backdrop-blur-md"
                              [class]="getStatusBadgeClasses(person['Расход'])"
                            >
-                             <span class="text-[10px] sm:text-sm font-bold uppercase tracking-wide drop-shadow-sm">
+                             <span class="text-[9px] sm:text-xs font-bold uppercase tracking-wide">
                                {{ person['Расход'] }}
                              </span>
                            </div>
@@ -209,68 +202,65 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
 
-      <!-- Expanded Card Overlay (Short Tap View) -->
+      <!-- Expanded Card Overlay -->
       @if (expandedPerson(); as person) {
         <div 
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-[scaleIn_0.15s_ease-out]"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-md p-6 animate-[fadeIn_0.2s_ease-out]"
           (click)="closeExpanded()"
         >
-          <!-- Expanded Card (Full Size) -->
           <div 
-             class="relative w-full max-w-sm rounded-[24px] overflow-hidden shadow-2xl flex flex-col"
-             [class]="getCardThemeClasses(person)"
+             class="relative w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col ring-1 ring-white/10"
              (click)="$event.stopPropagation()" 
           >
-             <!-- Close Btn -->
-             <button (click)="closeExpanded()" class="absolute top-2 right-2 z-20 bg-black/20 text-white rounded-full p-2 hover:bg-black/40">
+             <button (click)="closeExpanded()" class="absolute top-3 right-3 z-20 bg-white/20 text-white rounded-full p-2 hover:bg-white/40 backdrop-blur-md transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
              </button>
 
-             <!-- Photo Area -->
-             <div class="w-full aspect-square bg-[#E3E3E3] relative overflow-hidden">
+             <div class="w-full aspect-square bg-gray-200 relative overflow-hidden">
                 <img 
                   [src]="getPhotoUrl(person)" 
                   alt="Photo" 
                   class="w-full h-full object-cover"
                   onerror="this.src='https://via.placeholder.com/400x500?text=No+Photo'"
                 >
-                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                
+                <div class="absolute bottom-0 left-0 w-full p-6 text-white">
+                  <p class="uppercase text-xs font-bold tracking-widest opacity-80 mb-1">
+                    {{ person['Воинское звание'] || 'Звание не указано' }}
+                  </p>
+                  <h3 class="text-3xl font-black uppercase leading-none">
+                    {{ person['Фамилия'] || person['ФИО'] }} 
+                  </h3>
+                  <p class="text-lg font-medium opacity-90">{{ person['Имя'] }} {{ person['Отчество'] }}</p>
+                </div>
              </div>
 
-             <!-- Full Content -->
-             <div class="p-6 flex flex-col gap-1">
+             <div class="p-6 flex flex-col gap-4 bg-white">
                 
-                <!-- Rank Above Name -->
-                <p class="uppercase text-sm tracking-wider opacity-80 font-medium">
-                  {{ person['Воинское звание'] || 'Звание не указано' }}
+                <!-- Role Field (Restored to Text Style) -->
+                <p class="text-xs font-bold text-primary uppercase tracking-widest mb-4 opacity-90 leading-relaxed">
+                   {{ person['Должность'] || 'Должность не указана' }}
                 </p>
-
-                <!-- Name Larger -->
-                <h3 class="text-2xl font-bold uppercase tracking-wide leading-tight mb-2">
-                  {{ person['Фамилия'] || person['ФИО'] || 'Без фамилии' }} 
-                  {{ person['Имя'] || '' }} 
-                  {{ person['Отчество'] || '' }}
-                </h3>
-
-                <div class="text-base opacity-80 mb-2">
-                  <p class="font-normal">{{ person['Должность'] || 'Должность не указана' }}</p>
-                </div>
                 
-                <div class="h-px bg-black/10 w-full my-2"></div>
-                
-                <div class="flex justify-between items-end">
-                   <div class="flex flex-col gap-1 text-sm opacity-80">
-                      <div><span class="font-bold">Л/Н:</span> {{ person['Личный номер'] || '---' }}</div>
-                      <div><span class="font-bold">Возраст:</span> {{ getAgeLabel(person['Возраст'] || '') }}</div>
-                      @if (person['Расход']) {
-                        <!-- Increased Badge Size -->
-                        <div class="mt-2 inline-block px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wide w-max" [class]="getStatusBadgeClasses(person['Расход'])">
-                           {{ person['Расход'] }}
-                        </div>
-                      }
+                <div class="grid grid-cols-2 gap-4">
+                   <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                      <span class="text-xs font-bold text-gray-400 uppercase block mb-1">Личный номер</span>
+                      <span class="font-mono font-bold text-gray-800">{{ person['Личный номер'] || '---' }}</span>
                    </div>
-                   <!-- Right Aligned Callsign -->
-                   <div class="text-xl font-bold uppercase tracking-wide text-right" [class]="getTextColorClass(person)">
+                   <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                      <span class="text-xs font-bold text-gray-400 uppercase block mb-1">Возраст</span>
+                      <span class="font-bold text-gray-800">{{ getAgeLabel(person['Возраст'] || '') }}</span>
+                   </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-gray-100 mt-2">
+                   @if (person['Расход']) {
+                     <div class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide" [class]="getStatusBadgeClasses(person['Расход'])">
+                        {{ person['Расход'] }}
+                     </div>
+                   }
+                   <div class="text-xl font-black uppercase tracking-wide text-right ml-auto" [class]="getTextColorClass(person)">
                       {{ person['Позывной'] || '' }}
                    </div>
                 </div>
@@ -283,7 +273,7 @@ import { CommonModule } from '@angular/common';
       @if (showScrollButton()) {
         <button 
           (click)="scrollToTop()"
-          class="fixed bottom-6 right-6 w-14 h-14 bg-primary-container hover:bg-[#C2D6FC] text-[#041E49] rounded-[16px] shadow-elevation-3 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 z-50 animate-[scaleIn_0.2s_ease-out]"
+          class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-white rounded-full shadow-lg shadow-primary/40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-50 animate-[scaleIn_0.2s_ease-out] border border-white/20"
           title="Наверх"
         >
            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
@@ -507,54 +497,34 @@ export class DashboardComponent {
     const category = (person['ШДК категория в/сл.'] || '').toLowerCase().trim();
     const surname = (person['Фамилия'] || '').toLowerCase().trim();
 
-    if (surname === 'вакант') {
-      return 'text-[#410002]';
-    }
+    if (surname === 'вакант') return 'text-purple-800';
+    if (category === 'офицер' || category === 'сержант') return 'text-red-700';
 
-    if (category === 'офицер' || category === 'сержант') {
-      return 'text-[#B3261E]'; 
-    }
-
-    return 'text-[#0B57D0]'; // Blue (Primary)
+    return 'text-blue-700'; 
   }
 
-  // Card Background Logic
+  // Card Background Logic - Keeping it lighter/cleaner now
   getCardThemeClasses(person: Record<string, string>): string {
     const category = (person['ШДК категория в/сл.'] || '').toLowerCase().trim();
     const surname = (person['Фамилия'] || '').toLowerCase().trim();
 
-    // Vacant -> Purple (Darker than table #F3E5F5)
-    if (surname === 'вакант') {
-      return 'bg-[#E1BEE7] text-[#410002] border-transparent hover:bg-[#CE93D8]';
-    }
+    // Subtle colored borders instead of full colored backgrounds for cleaner look
+    if (surname === 'вакант') return 'hover:border-purple-200';
+    if (category === 'офицер') return 'hover:border-red-200';
+    if (category === 'прапорщик') return 'hover:border-green-200';
+    if (category === 'сержант') return 'hover:border-blue-200';
 
-    // Officer -> Light Red (Darker than table #F9DEDC)
-    if (category === 'офицер') {
-       return 'bg-[#F2B8B5] text-[#410002] border-transparent hover:bg-[#E69A97]';
-    }
-
-    // Praporshchik -> Light Green (Darker than table #DCF8C6)
-    if (category === 'прапорщик') {
-       return 'bg-[#C5E1A5] text-[#072711] border-transparent hover:bg-[#AED581]';
-    }
-
-    // Sergeant -> Light Blue (Darker than table #E3F2FD)
-    if (category === 'сержант') {
-       return 'bg-[#BBDEFB] text-[#041E49] border-transparent hover:bg-[#90CAF9]';
-    }
-
-    // Default -> Light Surface (Darker than white)
-    return 'bg-[#F0F0F0] text-[#1F1F1F] border-transparent hover:border-[#E3E3E3]';
+    return 'hover:border-gray-300';
   }
 
-  // Status Badge Logic
+  // Status Badge Logic - Stronger colors
   getStatusBadgeClasses(status: string): string {
     const s = status.toLowerCase().trim();
-    if (s === 'налицо') return 'bg-[#C4EED0] text-[#072711]';
-    if (s === 'отпуск') return 'bg-[#D3E3FD] text-[#041E49]';
-    if (s === 'болен' || s === 'госпиталь' || s === 'медицинская рота') return 'bg-[#FDF2B4] text-[#484600]';
-    if (s === 'соч') return 'bg-[#B3261E] text-white';
-    return 'bg-[#E3E3E3] text-[#444746]';
+    if (s === 'налицо') return 'bg-emerald-100 text-emerald-800';
+    if (s === 'отпуск') return 'bg-blue-100 text-blue-800';
+    if (s === 'болен' || s === 'госпиталь' || s === 'медицинская рота') return 'bg-amber-100 text-amber-900';
+    if (s === 'соч') return 'bg-red-600 text-white';
+    return 'bg-gray-200 text-gray-600';
   }
 
   // Scroll Handling
