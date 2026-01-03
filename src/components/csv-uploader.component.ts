@@ -7,90 +7,88 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="w-full flex flex-col gap-6">
+    <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
       
       <!-- STEP 1: Photo Folder Loader -->
       <div 
-        class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-3xl transition-all duration-300 ease-in-out relative overflow-hidden group"
+        class="flex flex-col items-center justify-center w-full min-h-[16rem] h-auto py-8 border-2 border-dashed rounded-3xl transition-all duration-300 ease-in-out relative overflow-hidden group hover:bg-gray-50 hover:border-primary-300"
         [class.border-primary]="isDraggingPhotos()"
         [class.bg-primary-50]="isDraggingPhotos()"
         [class.border-gray-200]="!isDraggingPhotos()"
         [class.bg-gray-50]="!isDraggingPhotos()"
-        [class.hover:border-primary-300]="!isDraggingPhotos()"
         (dragover)="onDragOverPhotos($event)"
         (dragleave)="onDragLeavePhotos($event)"
         (drop)="onDropPhotos($event)">
         
-        <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10 px-4 text-center">
-          <!-- Icon -->
-          <div class="mb-4 p-4 bg-white rounded-full text-primary shadow-md group-hover:scale-110 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
-          </div>
-
-          <p class="mb-1 text-lg font-bold text-gray-700">1. Загрузите фотографии</p>
-          <p class="text-xs text-gray-500 mb-6 max-w-xs font-medium">
-            Выберите папку с фотографиями личного состава
-          </p>
+        <div class="flex flex-col items-center justify-center z-10 px-4 text-center">
           
-          <!-- Status Indicator (Enhanced) -->
-          @if (loadedImageCount() > 0) {
-             <div class="mb-6 w-full max-w-[280px] bg-white rounded-2xl p-2 pr-5 border border-emerald-100 shadow-lg shadow-emerald-100/40 flex items-center gap-3 animate-[fadeIn_0.5s_ease-out]">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-200 shrink-0">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                </div>
-                <div class="flex flex-col text-left">
-                  <span class="text-[10px] font-bold text-emerald-600/80 uppercase tracking-wider leading-tight mb-0.5">Успешно</span>
-                  <span class="text-sm font-bold text-gray-800 leading-tight">
-                    {{ loadedImageCount() }} фото
-                  </span>
-                </div>
-             </div>
-          }
-
-          <!-- Note: added 'multiple' explicitly. 'webkitdirectory' allows folder picking on Desktop. 
-               On Mobile, it often falls back to file picking, so 'multiple' is key. -->
-          <input #folderInput type="file" webkitdirectory directory multiple class="hidden" (change)="onFolderSelected($event)" />
-          
+          <!-- Icon Trigger -->
           <button 
             (click)="folderInput.click()"
-            class="px-8 py-3 bg-primary-container text-primary-onContainer hover:bg-primary-light/50 hover:shadow-elevation-2 font-bold text-sm rounded-full transition-all duration-300 shadow-elevation-1 active:scale-95 active:shadow-sm">
-            Выбрать папку
+            class="mb-5 p-5 bg-white rounded-full shadow-lg shadow-gray-200/50 group-hover:scale-110 transition-all duration-300 border border-gray-100 cursor-pointer outline-none focus:ring-4 focus:ring-primary/10"
+            [class.text-primary]="loadedImageCount() === 0"
+            [class.text-emerald-500]="loadedImageCount() > 0"
+            [class.shadow-primary-10]="loadedImageCount() === 0"
+            [class.shadow-emerald-100]="loadedImageCount() > 0"
+            title="Выбрать папку"
+          >
+            @if (loadedImageCount() > 0) {
+              <!-- Success Checkmark -->
+              <svg class="w-10 h-10 animate-[scaleIn_0.3s_cubic-bezier(0.175,0.885,0.32,1.275)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+              </svg>
+            } @else {
+              <!-- Default Icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+            }
           </button>
+
+          <p class="mb-2 text-lg font-bold text-gray-800">1. Загрузите фотографии</p>
+          <p class="text-xs text-gray-500 mb-2 max-w-[200px] font-medium leading-relaxed">
+            Нажмите на иконку, чтобы выбрать папку с фото
+          </p>
+
+          <!-- Success Text -->
+          @if (loadedImageCount() > 0) {
+            <div class="mt-2 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[11px] font-bold animate-[fadeIn_0.5s_ease-out]">
+              Загружено: {{ loadedImageCount() }} фото
+            </div>
+          }
+          
+          <input #folderInput type="file" webkitdirectory directory multiple class="hidden" (change)="onFolderSelected($event)" />
         </div>
       </div>
 
       <!-- STEP 2: CSV Drop Zone -->
       <div 
-        class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-3xl transition-all duration-300 ease-in-out relative overflow-hidden group"
+        class="flex flex-col items-center justify-center w-full min-h-[16rem] h-auto py-8 border-2 border-dashed rounded-3xl transition-all duration-300 ease-in-out relative overflow-hidden group hover:bg-gray-50 hover:border-primary-300"
         [class.border-primary]="isDraggingCsv()"
         [class.bg-primary-50]="isDraggingCsv()"
         [class.border-gray-200]="!isDraggingCsv()"
         [class.bg-gray-50]="!isDraggingCsv()"
-        [class.hover:border-primary-300]="!isDraggingCsv()"
         (dragover)="onDragOverCsv($event)"
         (dragleave)="onDragLeaveCsv($event)"
         (drop)="onDropCsv($event)">
         
-        <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10 px-4 text-center">
-          <!-- Icon -->
-          <div class="mb-4 p-4 bg-white rounded-full text-gray-600 shadow-md group-hover:scale-110 transition-transform">
-            <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-            </svg>
-          </div>
-
-          <p class="mb-1 text-lg font-bold text-gray-700">2. Загрузите CSV файл</p>
-          <p class="text-xs text-gray-500 mb-6 font-medium">Штат или список личного состава</p>
+        <div class="flex flex-col items-center justify-center z-10 px-4 text-center">
           
-          <input #fileInput type="file" accept=".csv,text/csv,application/vnd.ms-excel,text/plain" class="hidden" (change)="onFileSelected($event)" />
-          
+          <!-- Icon Trigger -->
           <button 
             (click)="fileInput.click()"
-            class="px-8 py-3 bg-primary hover:bg-blue-700 text-white font-bold text-sm rounded-full transition-all shadow-lg shadow-primary/20 active:scale-95">
-            Выбрать файл
+            class="mb-5 p-5 bg-white rounded-full text-gray-600 shadow-lg shadow-gray-200/50 group-hover:scale-110 group-hover:text-primary transition-all duration-300 border border-gray-100 cursor-pointer outline-none focus:ring-4 focus:ring-primary/10"
+            title="Выбрать файл"
+          >
+            <svg class="w-10 h-10" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+            </svg>
           </button>
+
+          <p class="mb-2 text-lg font-bold text-gray-800">2. Загрузите CSV файл</p>
+          <p class="text-xs text-gray-500 mb-2 max-w-[200px] font-medium leading-relaxed">
+            Нажмите на иконку, чтобы выбрать файл штата
+          </p>
+          
+          <input #fileInput type="file" accept=".csv,text/csv,application/vnd.ms-excel,text/plain" class="hidden" (change)="onFileSelected($event)" />
         </div>
       </div>
 

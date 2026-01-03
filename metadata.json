@@ -1,5 +1,5 @@
 {
   "name": "ШР ДШБ",
-  "description": "A beautiful, high-performance CSV viewer with integrated Gemini AI for instant data analysis and insights.",
+  "description": "Автономное приложение для просмотра и анализа штатного расписания (CSV) с поддержкой фото.",
   "requestFramePermissions": []
 }

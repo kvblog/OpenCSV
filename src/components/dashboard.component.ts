@@ -1,3 +1,4 @@
+
 import { Component, input, output, computed, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -134,7 +135,7 @@ import { CommonModule } from '@angular/common';
                             alt="Photo" 
                             loading="lazy"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            onerror="this.src='https://via.placeholder.com/400x500?text=No+Photo'"
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4='"
                           >
                           <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
                         </div>
@@ -221,7 +222,7 @@ import { CommonModule } from '@angular/common';
                   [src]="getPhotoUrl(person)" 
                   alt="Photo" 
                   class="w-full h-full object-cover"
-                  onerror="this.src='https://via.placeholder.com/400x500?text=No+Photo'"
+                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4='"
                 >
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 
@@ -468,7 +469,8 @@ export class DashboardComponent {
     if (map.has(filename)) return map.get(filename)!;
     if (map.has('nophoto.jpg')) return map.get('nophoto.jpg')!;
 
-    return `https://via.placeholder.com/400x500?text=${encodeURIComponent(surname || 'No Photo')}`;
+    // Replaced external URL with internal SVG data URI
+    return `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=`;
   }
 
   // Helper to format age with Russian declension

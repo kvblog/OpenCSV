@@ -1,3 +1,4 @@
+
 import { Component, inject, signal, computed, effect, ViewChild, ElementRef, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CsvService, CsvData } from './services/csv.service';
@@ -35,6 +36,7 @@ export class AppComponent implements OnInit {
   fileName = signal<string>('');
   csvData = signal<CsvData | null>(null);
   isLoading = signal(false); // For async restoration
+  isResetConfirmOpen = signal(false);
   
   // Image State
   imageMap = signal<Map<string, string>>(new Map());
@@ -240,8 +242,16 @@ export class AppComponent implements OnInit {
     await this.storageService.saveData(fileName, csvText, images);
   }
 
-  async reset() {
-    // Immediate reset without confirmation
+  // Triggered by button click
+  reset() {
+    this.isResetConfirmOpen.set(true);
+    this.isMobileMenuOpen.set(false);
+  }
+
+  // Actual deletion logic
+  async confirmReset() {
+    this.isResetConfirmOpen.set(false);
+    
     this.csvData.set(null);
     this.currentView.set('upload');
     this.selectedRowIndex.set(null);
@@ -250,6 +260,7 @@ export class AppComponent implements OnInit {
     this.searchQuery.set('');
     this.isSearchExpanded.set(false);
     this.tableFontSize.set(14);
+    this.fileName.set('');
     
     // Revoke old URLs to free memory
     this.imageMap().forEach(url => URL.revokeObjectURL(url));
@@ -259,6 +270,10 @@ export class AppComponent implements OnInit {
     
     // Clear Storage
     await this.storageService.clearData();
+  }
+
+  cancelReset() {
+    this.isResetConfirmOpen.set(false);
   }
 
   // --- View Navigation ---
@@ -499,7 +514,8 @@ export class AppComponent implements OnInit {
     if (map.has(filename)) return map.get(filename)!;
     if (map.has('nophoto.jpg')) return map.get('nophoto.jpg')!;
 
-    return `https://via.placeholder.com/400x500?text=${encodeURIComponent(surname || 'No Photo')}`;
+    // Replaced external URL with internal SVG data URI
+    return `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=`;
   }
 
   getAgeLabel(ageStr: string): string {
