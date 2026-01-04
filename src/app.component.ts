@@ -6,16 +6,20 @@ import { StorageService } from './services/storage.service';
 import { CsvUploaderComponent } from './components/csv-uploader.component';
 import { DashboardComponent } from './components/dashboard.component';
 import { FormsModule } from '@angular/forms';
+import { LogoComponent } from './components/logo.component';
+import { LOGO_DATA_URI } from './utils/logo.constant';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, CsvUploaderComponent, DashboardComponent, FormsModule],
+  imports: [CommonModule, CsvUploaderComponent, DashboardComponent, FormsModule, LogoComponent],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
-  protected readonly Math = Math; // Expose Math to template
+  protected readonly Math = Math;
+  protected readonly LOGO_DATA_URI = LOGO_DATA_URI;
+  
   private csvService = inject(CsvService);
   private storageService = inject(StorageService);
 
@@ -514,8 +518,17 @@ export class AppComponent implements OnInit {
     if (map.has(filename)) return map.get(filename)!;
     if (map.has('nophoto.jpg')) return map.get('nophoto.jpg')!;
 
-    // Replaced external URL with internal SVG data URI
-    return `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=`;
+    // Return the default PNG path; component will fallback to SVG if 404
+    return this.LOGO_DATA_URI;
+  }
+
+  // Method to handle image loading errors safely
+  handleImageError(event: any) {
+    const img = event.target as HTMLImageElement;
+    // Check if the current source is already the logo (checking end of string to handle absolute URLs)
+    if (img && !img.src.endsWith(this.LOGO_DATA_URI)) {
+      img.src = this.LOGO_DATA_URI;
+    }
   }
 
   getAgeLabel(ageStr: string): string {

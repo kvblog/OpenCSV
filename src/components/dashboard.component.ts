@@ -1,12 +1,31 @@
 
 import { Component, input, output, computed, signal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LOGO_DATA_URI } from '../utils/logo.constant';
+import { ScrollAnimateDirective } from '../directives/scroll-animate.directive';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ScrollAnimateDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    @keyframes slideInBottom {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Make this class available globally within this component's shadow DOM/scope */
+    ::ng-deep .animate-slide-in-bottom {
+      animation: slideInBottom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+  `],
   template: `
     <!-- Main scrollable container for everything -->
     <div 
@@ -114,10 +133,11 @@ import { CommonModule } from '@angular/common';
 
                 <!-- Cards Grid -->
                 @if (!isGroupCollapsed(group.name)) {
-                  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 animate-[fadeIn_0.2s_ease-out]">
+                  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     @for (person of group.rows; track $index) {
-                      <!-- Card -->
+                      <!-- Card with scroll animation -->
                       <div 
+                        scrollAnimate
                         class="relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 group shadow-sm hover:shadow-lg border border-gray-100/50 cursor-pointer select-none bg-white"
                         [class]="getCardThemeClasses(person)"
                         (mousedown)="startLongPress(person)"
@@ -135,14 +155,14 @@ import { CommonModule } from '@angular/common';
                             alt="Photo" 
                             loading="lazy"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4='"
+                            (error)="handleImageError($event)"
                           >
                           <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></div>
                         </div>
 
                         <!-- Content Body -->
                         <div class="p-4 sm:p-5 flex flex-col flex-1 gap-1.5 pointer-events-none relative">
-                           <!-- Floating Rank Badge (Moved inside content slightly overlapping or just at top) -->
+                           <!-- Floating Rank Badge -->
                            <div class="absolute -top-8 left-4 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/20">
                              <p class="uppercase text-[10px] font-bold tracking-widest text-gray-800">
                                {{ person['Воинское звание'] || '---' }}
@@ -222,7 +242,7 @@ import { CommonModule } from '@angular/common';
                   [src]="getPhotoUrl(person)" 
                   alt="Photo" 
                   class="w-full h-full object-cover"
-                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4='"
+                  (error)="handleImageError($event)"
                 >
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 
@@ -294,6 +314,8 @@ export class DashboardComponent {
   
   showScrollButton = signal(false);
   expandedPerson = signal<Record<string, string> | null>(null);
+
+  protected readonly LOGO_DATA_URI = LOGO_DATA_URI;
 
   // Stats Visibility State
   showStats = signal(true);
@@ -469,11 +491,19 @@ export class DashboardComponent {
     if (map.has(filename)) return map.get(filename)!;
     if (map.has('nophoto.jpg')) return map.get('nophoto.jpg')!;
 
-    // Replaced external URL with internal SVG data URI
-    return `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=`;
+    // Return logo if not found (or allow img error handler to catch it)
+    return this.LOGO_DATA_URI;
   }
 
-  // Helper to format age with Russian declension
+  // Method to handle image loading errors safely
+  handleImageError(event: any) {
+    const img = event.target as HTMLImageElement;
+    // Check if the current source is already the logo (checking end of string to handle absolute URLs)
+    if (img && !img.src.endsWith(this.LOGO_DATA_URI)) {
+      img.src = this.LOGO_DATA_URI;
+    }
+  }
+
   getAgeLabel(ageStr: string): string {
     if (!ageStr || ageStr.trim() === '' || ageStr === '--') return '--';
     const age = parseInt(ageStr, 10);

@@ -9,11 +9,7 @@
       <div class="flex items-center gap-3 min-w-0">
         <!-- Logo: Updated to rounded-xl for better proportions display, with Material shadow -->
         <div class="relative w-12 h-12 rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-md ring-1 ring-gray-900/5 bg-gray-100 flex-shrink-0" (click)="currentView() !== 'upload' ? setView('viewer') : null">
-          <img 
-            src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=" 
-            alt="App Icon" 
-            class="w-full h-full object-cover"
-          />
+          <app-logo class="w-full h-full"></app-logo>
         </div>
         <div class="flex flex-col justify-center min-w-0">
           <h1 class="font-medium text-[#1F1F1F] text-lg leading-tight tracking-tight truncate">ШР ДШБ</h1>
@@ -93,7 +89,7 @@
              >
                <!-- Updated Card/Grid Icon -->
                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                 <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                 <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                </svg>
                Карточки
              </button>
@@ -185,11 +181,7 @@
              
              <!-- Central Logo - NOW ROUNDED-FULL -->
              <div class="relative w-28 h-28 rounded-full overflow-hidden shadow-2xl z-10 animate-[pulse_3s_ease-in-out_infinite]">
-                <img 
-                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=" 
-                  alt="Loading" 
-                  class="w-full h-full object-cover"
-                />
+                <app-logo class="w-full h-full"></app-logo>
              </div>
           </div>
           <!-- Text moved to bottom with specified color -->
@@ -318,7 +310,7 @@
                        <img 
                           [src]="getPhotoUrl(row)" 
                           class="w-full h-full object-cover" 
-                          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0UzRTZFQyI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00czLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg=='"
+                          (error)="handleImageError($event)"
                        >
                     </div>
 
@@ -490,7 +482,8 @@
     <div class="z-10 w-full max-w-[280px] flex flex-col items-center my-auto">
       <div class="mb-10 text-center">
          <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-gray-800 mb-6 shadow-2xl ring-1 ring-white/10 relative group">
-           <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8IS0tIE91dGVyIFJlZCBSaW5nIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjRkZFNDAwIiBzdHJva2U9IiNDQzAwMDAiIHN0cm9rZS13aWR0aD0iNCIvPgogIDwhLS0gSW5uZXIgQmxhY2sgQ2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM2IiBmaWxsPSIjMTExIi8+CiAgPCEtLSBBbmNob3IgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAgNTApIHNjYWxlKDAuOSkiPgogICAgPHBhdGggZD0iTTAgLTI1IFYgMjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0tMjAgMTAgQSAyMCAyMCAwIDAgMCAyMCAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZFNDAwIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTS0yMCAxMCBMIC0yNSAxNSBNIDIwIDEwIEwgMjUgMTUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxyZWN0IHg9Ii0xMCIgeT0iLTIyIiB3aWR0aD0iMjAiIGhlaWdodD0iNiIgZmlsbD0iI0ZGRTQwMCIgcng9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMzIiIHI9IjUiIHN0cm9rZT0iI0ZGRTQwMCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPC9nPgo8L3N2Zz4=" alt="App Icon" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity">
+           <!-- Using AppLogo here as well to guarantee display -->
+           <app-logo class="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity"></app-logo>
            <div class="absolute inset-0 rounded-full border border-white/5 pointer-events-none"></div>
          </div>
          <h1 class="text-3xl font-bold tracking-widest mb-3 text-white">ШР ДШБ</h1>
