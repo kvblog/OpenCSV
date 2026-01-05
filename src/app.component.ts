@@ -36,7 +36,8 @@ export class AppComponent implements OnInit {
   pinError = signal('');
   
   // Application State
-  currentView = signal<'upload' | 'viewer' | 'dashboard'>('upload');
+  // Added 'lists' to the allowed views
+  currentView = signal<'upload' | 'viewer' | 'dashboard' | 'lists'>('upload');
   fileName = signal<string>('');
   csvData = signal<CsvData | null>(null);
   isLoading = signal(false); // For async restoration
@@ -69,6 +70,14 @@ export class AppComponent implements OnInit {
   showCopyToast = signal(false);
   copyToastMessage = signal('');
 
+  // --- LISTS FEATURE STATE ---
+  savedList = signal<Record<string, string>[]>([]);
+  isListCreationModalOpen = signal(false);
+  // Set of Row Objects (using reference equality)
+  tempListSelection = signal<Set<Record<string, string>>>(new Set());
+  private listSelectionLongPressTimeout: any;
+  private isListSelectionActionTriggered = false;
+
   constructor() {
     this.checkPinStatus();
   }
@@ -85,6 +94,11 @@ export class AppComponent implements OnInit {
         
         const parsed = this.csvService.parse(data.csvText);
         this.csvData.set(parsed);
+
+        // Restore list if exists
+        if (data.savedList && Array.isArray(data.savedList)) {
+          this.savedList.set(data.savedList);
+        }
         
         // Go straight to viewer
         this.currentView.set('viewer');
@@ -151,6 +165,32 @@ export class AppComponent implements OnInit {
     const row = this.detailData();
     if (!row) return 'Детали';
     return row['Фамилия'] || row['Name'] || row['ФИО'] || 'Карточка';
+  });
+
+  // Generated Text for Lists View
+  formattedListText = computed(() => {
+    const list = this.savedList();
+    if (list.length === 0) return '';
+    
+    // Sort Alphabetically by Surname
+    const sorted = [...list].sort((a, b) => {
+      const nameA = (a['Фамилия'] || a['ФИО'] || '').toLowerCase();
+      const nameB = (b['Фамилия'] || b['ФИО'] || '').toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+
+    return sorted.map((row, index) => {
+      const rank = row['Воинское звание'] || '';
+      const surname = (row['Фамилия'] || '').toUpperCase(); // Uppercase Surname
+      const name = row['Имя'] || '';
+      const patronymic = row['Отчество'] || '';
+      const callsign = row['Позывной'] ? `- ${row['Позывной']}` : '';
+      
+      // Format: {Number} {Rank} {FIO} - {Callsign}
+      const fio = `${surname} ${name} ${patronymic}`.trim();
+      
+      return `${index + 1}. ${rank} ${fio} ${callsign}`.replace(/\s+/g, ' ').trim();
+    }).join('\n');
   });
 
   // --- Auth Logic ---
@@ -231,7 +271,8 @@ export class AppComponent implements OnInit {
       this.activeFilters.set({});
       this.searchQuery.set('');
 
-      // Persist
+      // Persist (and keep existing list if any, but currently just overwriting file data)
+      // Note: If onFileLoaded is called, we usually treat it as a new session, but let's persist the list if we want it to survive
       await this.saveCurrentState(file.name, text, this.imageMap());
     } finally {
       this.isLoading.set(false);
@@ -244,6 +285,8 @@ export class AppComponent implements OnInit {
 
   private async saveCurrentState(fileName: string, csvText: string, images: Map<string, string>): Promise<void> {
     await this.storageService.saveData(fileName, csvText, images);
+    // Also save the list just in case
+    await this.storageService.saveList(this.savedList());
   }
 
   // Triggered by button click
@@ -266,6 +309,10 @@ export class AppComponent implements OnInit {
     this.tableFontSize.set(14);
     this.fileName.set('');
     
+    // Clear Lists
+    this.savedList.set([]);
+    this.tempListSelection.set(new Set());
+    
     // Revoke old URLs to free memory
     this.imageMap().forEach(url => URL.revokeObjectURL(url));
     this.imageMap.set(new Map());
@@ -281,7 +328,7 @@ export class AppComponent implements OnInit {
   }
 
   // --- View Navigation ---
-  setView(view: 'viewer' | 'dashboard') {
+  setView(view: 'viewer' | 'dashboard' | 'lists') {
     this.currentView.set(view);
     this.isMobileMenuOpen.set(false);
   }
@@ -498,6 +545,73 @@ export class AppComponent implements OnInit {
 
     // Default with zebra striping
     return classes + 'bg-white even:bg-[#F9FAFB] hover:bg-[#F2F2F2] text-[#1F1F1F]';
+  }
+
+  // --- LISTS FEATURE METHODS ---
+
+  openCreateListModal() {
+    // Clear temp selection when opening
+    this.tempListSelection.set(new Set());
+    this.isListCreationModalOpen.set(true);
+    this.isMobileMenuOpen.set(false);
+  }
+
+  closeCreateListModal() {
+    this.isListCreationModalOpen.set(false);
+    this.tempListSelection.set(new Set());
+  }
+
+  saveCreatedList() {
+    const selected = Array.from(this.tempListSelection());
+    this.savedList.set(selected);
+    this.closeCreateListModal();
+    // Persist immediately
+    this.storageService.saveList(selected);
+  }
+
+  deleteList() {
+    this.savedList.set([]);
+    // Persist empty list
+    this.storageService.saveList([]);
+  }
+
+  copyListText() {
+    const text = this.formattedListText();
+    if (text) {
+      this.copyToClipboard(text, 'Список');
+    }
+  }
+
+  startListSelectionLongPress(row: Record<string, string>) {
+    this.isListSelectionActionTriggered = false;
+    this.listSelectionLongPressTimeout = setTimeout(() => {
+      this.toggleListSelection(row);
+      this.isListSelectionActionTriggered = true;
+      if (navigator.vibrate) navigator.vibrate(50);
+    }, 300); // Shorter duration for selection feels snappier
+  }
+
+  cancelListSelectionLongPress() {
+    if (this.listSelectionLongPressTimeout) {
+      clearTimeout(this.listSelectionLongPressTimeout);
+      this.listSelectionLongPressTimeout = null;
+    }
+  }
+
+  toggleListSelection(row: Record<string, string>) {
+    this.tempListSelection.update(current => {
+      const newSet = new Set(current);
+      if (newSet.has(row)) {
+        newSet.delete(row);
+      } else {
+        newSet.add(row);
+      }
+      return newSet;
+    });
+  }
+
+  isPersonSelectedForList(row: Record<string, string>): boolean {
+    return this.tempListSelection().has(row);
   }
 
   // --- Helper Methods for Modal Display ---

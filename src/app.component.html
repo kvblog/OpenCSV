@@ -31,40 +31,42 @@
       <div class="hidden md:flex items-center gap-3">
         @if (currentView() !== 'upload') {
           
-          <!-- Expandable Search Bar -->
-          <div 
-             class="relative flex items-center bg-gray-100/80 hover:bg-gray-100 transition-all duration-300 ease-in-out h-11 overflow-hidden rounded-full border border-transparent focus-within:border-primary/20 focus-within:ring-2 focus-within:ring-primary/10"
-             [class.w-11]="!isSearchExpanded()"
-             [class.w-80]="isSearchExpanded()"
-             [class.shadow-sm]="isSearchExpanded()"
-          >
-             <button 
-               (click)="toggleSearch()" 
-               class="absolute left-0 top-0 w-11 h-11 flex items-center justify-center rounded-full text-gray-500 hover:text-primary z-10 transition-colors"
-               [class.cursor-default]="isSearchExpanded()"
-               title="Поиск"
-             >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-             </button>
-
-             <input 
-               #searchInput
-               type="text" 
-               [(ngModel)]="searchQuery" 
-               placeholder="Поиск по базе..." 
-               class="w-full h-full bg-transparent border-none focus:ring-0 text-sm text-[#1F1F1F] placeholder-gray-400 pl-11 pr-11 outline-none font-medium"
-               [tabindex]="isSearchExpanded() ? 0 : -1"
-             >
-
-             @if (isSearchExpanded()) {
+          <!-- Expandable Search Bar (Hide in Lists View) -->
+          @if (currentView() !== 'lists') {
+            <div 
+               class="relative flex items-center bg-gray-100/80 hover:bg-gray-100 transition-all duration-300 ease-in-out h-11 overflow-hidden rounded-full border border-transparent focus-within:border-primary/20 focus-within:ring-2 focus-within:ring-primary/10"
+               [class.w-11]="!isSearchExpanded()"
+               [class.w-80]="isSearchExpanded()"
+               [class.shadow-sm]="isSearchExpanded()"
+            >
                <button 
-                 (click)="closeSearch()" 
-                 class="absolute right-0 top-0 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-red-500 z-10 transition-colors"
+                 (click)="toggleSearch()" 
+                 class="absolute left-0 top-0 w-11 h-11 flex items-center justify-center rounded-full text-gray-500 hover:text-primary z-10 transition-colors"
+                 [class.cursor-default]="isSearchExpanded()"
+                 title="Поиск"
                >
-                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                </button>
-             }
-          </div>
+
+               <input 
+                 #searchInput
+                 type="text" 
+                 [(ngModel)]="searchQuery" 
+                 placeholder="Поиск по базе..." 
+                 class="w-full h-full bg-transparent border-none focus:ring-0 text-sm text-[#1F1F1F] placeholder-gray-400 pl-11 pr-11 outline-none font-medium"
+                 [tabindex]="isSearchExpanded() ? 0 : -1"
+               >
+
+               @if (isSearchExpanded()) {
+                 <button 
+                   (click)="closeSearch()" 
+                   class="absolute right-0 top-0 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-red-500 z-10 transition-colors"
+                 >
+                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                 </button>
+               }
+            </div>
+          }
 
           <!-- Navigation Segmented Button -->
           <div class="flex items-center bg-gray-100 rounded-full p-1 h-11 shadow-inner">
@@ -87,11 +89,22 @@
                [class.text-primary]="currentView() === 'dashboard'"
                [class.text-gray-500]="currentView() !== 'dashboard'"
              >
-               <!-- Updated Card/Grid Icon -->
                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                  <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                </svg>
                Карточки
+             </button>
+             <button 
+               (click)="setView('lists')"
+               class="px-5 h-full rounded-full text-sm font-semibold transition-all flex items-center gap-2"
+               [class.bg-white]="currentView() === 'lists'"
+               [class.shadow-sm]="currentView() === 'lists'"
+               [class.text-primary]="currentView() === 'lists'"
+               [class.text-gray-500]="currentView() !== 'lists'"
+             >
+               <!-- Lists Icon -->
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+               Списки
              </button>
           </div>
 
@@ -151,9 +164,10 @@
                 }
              </div>
 
-             <div class="grid grid-cols-2 gap-3">
-               <button (click)="setView('viewer')" class="p-3.5 rounded-2xl bg-primary/10 text-primary text-sm font-bold text-center border border-primary/20">Таблица</button>
+             <div class="grid grid-cols-3 gap-2">
+               <button (click)="setView('viewer')" class="p-3.5 rounded-2xl bg-gray-100 text-gray-700 text-sm font-bold text-center border border-transparent">Таблица</button>
                <button (click)="setView('dashboard')" class="p-3.5 rounded-2xl bg-gray-100 text-gray-700 text-sm font-bold text-center border border-transparent">Карточки</button>
+               <button (click)="setView('lists')" class="p-3.5 rounded-2xl bg-gray-100 text-gray-700 text-sm font-bold text-center border border-transparent">Списки</button>
              </div>
              
              <button (click)="openFilterModal()" class="w-full p-3.5 rounded-2xl bg-gray-50 text-gray-800 text-sm font-semibold flex items-center justify-center gap-2 border border-gray-200">
@@ -262,7 +276,143 @@
           ></app-dashboard>
         </div>
       }
+
+      <!-- LISTS State -->
+      @if (currentView() === 'lists') {
+        <div class="flex-1 flex flex-col bg-[#F3F6FC] overflow-hidden min-h-0 relative animate-[fadeIn_0.3s]">
+           <!-- Action Bar -->
+           <div class="px-4 py-3 bg-white/50 backdrop-blur-sm border-b border-gray-200 flex items-center justify-center gap-4 flex-none">
+             <button 
+               (click)="openCreateListModal()"
+               class="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full font-bold text-sm shadow-md shadow-emerald-500/20 active:scale-95 transition-all"
+             >
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+               Создать
+             </button>
+             
+             <button 
+               (click)="copyListText()"
+               class="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-full font-bold text-sm shadow-md shadow-gray-500/20 active:scale-95 transition-all"
+               [disabled]="savedList().length === 0"
+               [class.opacity-50]="savedList().length === 0"
+             >
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+               Скопировать
+             </button>
+
+             <button 
+               (click)="deleteList()"
+               class="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full font-bold text-sm shadow-md shadow-red-500/20 active:scale-95 transition-all"
+               [disabled]="savedList().length === 0"
+               [class.opacity-50]="savedList().length === 0"
+             >
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+               Удалить
+             </button>
+           </div>
+
+           <!-- Content -->
+           <div class="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar">
+             @if (savedList().length > 0) {
+               <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10 min-h-full">
+                 <pre class="font-mono text-sm md:text-base whitespace-pre-wrap text-gray-800 leading-relaxed">{{ formattedListText() }}</pre>
+               </div>
+             } @else {
+               <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                 <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                 <p class="font-medium">Список пуст</p>
+                 <p class="text-sm mt-1">Нажмите «Создать», чтобы добавить людей</p>
+               </div>
+             }
+           </div>
+        </div>
+      }
     </main>
+
+    <!-- List Creation Modal -->
+    @if (isListCreationModalOpen()) {
+      <div class="fixed inset-0 z-[70] flex flex-col bg-white animate-[slideUp_0.3s_ease-out]">
+         <!-- Modal Header -->
+         <div class="flex-none px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-white shadow-sm z-10">
+           <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+             Выбрано
+             <span class="bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ tempListSelection().size }}</span>
+           </h3>
+           <div class="flex items-center text-xs text-gray-500">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path></svg>
+              Удерживайте для выбора
+           </div>
+         </div>
+
+         <!-- Modal List Content -->
+         <div class="flex-1 overflow-y-auto custom-scrollbar p-2 bg-gray-50">
+            <div class="grid grid-cols-1 gap-2 max-w-3xl mx-auto">
+              @for (row of allRows(); track $index) {
+                <div 
+                  class="flex items-center gap-4 p-2 bg-white rounded-xl border transition-all duration-200 select-none cursor-pointer"
+                  [class.border-emerald-500]="isPersonSelectedForList(row)"
+                  [class.ring-2]="isPersonSelectedForList(row)"
+                  [class.ring-emerald-100]="isPersonSelectedForList(row)"
+                  [class.bg-emerald-50]="isPersonSelectedForList(row)"
+                  [class.border-gray-200]="!isPersonSelectedForList(row)"
+                  (mousedown)="startListSelectionLongPress(row)"
+                  (touchstart)="startListSelectionLongPress(row)"
+                  (mouseup)="cancelListSelectionLongPress()"
+                  (touchend)="cancelListSelectionLongPress()"
+                  (mouseleave)="cancelListSelectionLongPress()"
+                >
+                   <!-- Photo: Increased size -->
+                   <div class="w-14 h-14 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 shadow-sm border border-gray-100">
+                      <img [src]="getPhotoUrl(row)" class="w-full h-full object-cover">
+                   </div>
+                   
+                   <!-- Text Info -->
+                   <div class="flex-1 min-w-0 flex flex-col justify-center">
+                      <!-- Rank first, same font -->
+                      <p class="text-sm font-medium text-gray-900 truncate">
+                        {{ row['Воинское звание'] || '---' }}
+                      </p>
+                      <!-- Name second, Uppercase Surname, same font, bold -->
+                      <p class="text-sm font-bold text-gray-900 truncate mt-0.5">
+                        <span class="uppercase">{{ row['Фамилия'] || row['ФИО'] || 'БЕЗ ФАМИЛИИ' }}</span> {{ row['Имя'] }}
+                      </p>
+                   </div>
+
+                   <!-- Callsign: Bigger, Centered vertically -->
+                   @if (row['Позывной']) {
+                     <div class="text-lg font-bold text-primary bg-primary/5 px-2 py-1 rounded ml-2 flex-shrink-0 self-center">
+                       {{ row['Позывной'] }}
+                     </div>
+                   }
+
+                   <!-- Checkmark if selected -->
+                   @if (isPersonSelectedForList(row)) {
+                     <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center animate-[scaleIn_0.2s] flex-shrink-0 ml-1">
+                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                     </div>
+                   }
+                </div>
+              }
+            </div>
+         </div>
+
+         <!-- Modal Footer -->
+         <div class="flex-none p-4 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20 flex gap-3">
+            <button 
+              (click)="closeCreateListModal()"
+              class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold text-sm transition-colors"
+            >
+              Отмена
+            </button>
+            <button 
+              (click)="saveCreatedList()"
+              class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30 active:scale-95 transition-all"
+            >
+              Готово
+            </button>
+         </div>
+      </div>
+    }
 
     <!-- Reset Confirmation Dialog -->
     @if (isResetConfirmOpen()) {
@@ -298,44 +448,52 @@
          <div class="bg-white w-full max-w-lg md:max-w-6xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] md:h-[85vh] ring-1 ring-black/5">
             
             <!-- Sidebar -->
-            <div class="bg-gray-50 border-b md:border-b-0 md:border-r border-gray-100 p-6 md:p-8 flex flex-col md:w-[340px] flex-shrink-0 relative overflow-y-auto custom-scrollbar">
-               <button (click)="closeDetailModal()" class="absolute top-4 right-4 md:hidden text-gray-400 hover:text-gray-800 hover:bg-gray-200 rounded-full p-2 transition-colors">
+            <div class="bg-gray-50 border-b md:border-b-0 md:border-r border-gray-100 p-0 md:p-6 flex flex-col md:w-[320px] flex-shrink-0 relative overflow-y-auto custom-scrollbar">
+               <!-- Close Button for Mobile (Visible on Photo) -->
+               <button (click)="closeDetailModal()" class="absolute top-4 right-4 md:hidden text-white bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full p-2 transition-colors z-30">
                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                </button>
 
                @if (detailData(); as row) {
-                 <div class="flex flex-col items-center md:items-start text-center md:text-left h-full">
+                 <div class="flex flex-col items-start text-left h-full relative group w-full">
                     <!-- Photo -->
-                    <div class="w-36 h-36 md:w-full md:aspect-square rounded-2xl overflow-hidden shadow-md bg-gray-200 mb-6 ring-1 ring-black/5 flex-shrink-0">
+                    <div class="w-full h-72 md:h-auto md:aspect-[4/3] md:rounded-2xl overflow-hidden shadow-md bg-gray-200 md:mb-6 ring-1 ring-black/5 flex-shrink-0 relative">
                        <img 
                           [src]="getPhotoUrl(row)" 
                           class="w-full h-full object-cover" 
                           (error)="handleImageError($event)"
                        >
+                       <!-- Removed Backdrop as requested -->
                     </div>
 
-                    <!-- Main Info -->
-                    <div class="w-full">
-                      <p class="text-xs font-bold text-primary uppercase tracking-widest mb-2 opacity-90">{{ row['Воинское звание'] || 'Звание не указано' }}</p>
+                    <!-- Main Info (Centered Overlay on Mobile, Normal on Desktop) -->
+                    <!-- Mobile: Align bottom (justify-end), center width (items-center) -->
+                    <div class="absolute inset-0 z-20 flex flex-col justify-end items-center text-center p-6 md:static md:p-0 md:text-left md:items-start md:h-auto pointer-events-none md:pointer-events-auto">
                       
+                      <!-- Rank -->
+                      <p class="text-xs font-bold uppercase tracking-widest mb-1 md:mb-2 opacity-90 text-white md:text-primary leading-tight drop-shadow-md md:drop-shadow-none">
+                        {{ row['Воинское звание'] || 'Звание не указано' }}
+                      </p>
+                      
+                      <!-- Name -->
                       <div 
                          (click)="copyFullInfo(row)" 
-                         class="cursor-pointer hover:opacity-80 active:scale-[0.98] transition-all select-none group"
+                         class="cursor-pointer hover:opacity-80 active:scale-[0.98] transition-all select-none group pointer-events-auto"
                          title="Нажмите, чтобы скопировать"
                       >
-                         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-4 group-hover:text-primary transition-colors">
+                         <h2 class="text-3xl font-bold leading-tight mb-2 md:mb-4 text-white md:text-gray-900 group-hover:text-primary-light md:group-hover:text-primary transition-colors drop-shadow-md md:drop-shadow-none">
                            {{ row['Фамилия'] || row['ФИО'] || 'Без Фамилии' }}<br>
-                           <span class="text-xl md:text-2xl font-normal text-gray-700">{{ row['Имя'] || '' }} {{ row['Отчество'] || '' }}</span>
+                           <span class="text-xl md:text-2xl font-normal text-white/95 md:text-gray-700">{{ row['Имя'] || '' }} {{ row['Отчество'] || '' }}</span>
                          </h2>
                       </div>
 
-                      <!-- Role Field (Restored to Text Style) -->
-                      <p class="text-xs font-bold text-primary uppercase tracking-widest mb-6 opacity-90 leading-relaxed">
+                      <!-- Role -->
+                      <p class="text-xs font-bold uppercase tracking-widest mb-0 md:mb-6 opacity-90 leading-relaxed text-white/90 md:text-primary drop-shadow-md md:drop-shadow-none">
                          {{ row['Должность'] || 'Должность не указана' }}
                       </p>
 
-                      <!-- Key Stats -->
-                      <div class="hidden md:flex flex-col gap-4 w-full bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                      <!-- Key Stats (Hidden on Mobile) -->
+                      <div class="hidden md:flex flex-col gap-4 w-full bg-white p-4 rounded-xl border border-gray-100 shadow-sm mt-4 md:mt-0 pointer-events-auto">
                          <div class="flex justify-between items-center border-b border-gray-50 pb-2">
                             <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Позывной</span>
                             <span class="text-sm font-bold text-primary px-2 py-0.5 bg-primary/5 rounded">{{ row['Позывной'] || '---' }}</span>

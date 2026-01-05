@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -63,7 +64,19 @@ export class StorageService {
     });
   }
 
-  async loadData(): Promise<{ fileName: string, csvText: string, imageMap: Map<string, string> } | null> {
+  // New method to save ONLY the list
+  async saveList(list: Record<string, string>[]): Promise<void> {
+    const db = await this.dbPromise;
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+      store.put(list, 'savedList');
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async loadData(): Promise<{ fileName: string, csvText: string, imageMap: Map<string, string>, savedList: Record<string, string>[] } | null> {
     const db = await this.dbPromise;
     
     return new Promise((resolve, reject) => {
@@ -73,6 +86,7 @@ export class StorageService {
       const reqFileName = store.get('fileName');
       const reqCsv = store.get('csvText');
       const reqImages = store.get('images');
+      const reqList = store.get('savedList'); // Load the list
 
       transaction.oncomplete = () => {
         if (!reqCsv.result) {
@@ -92,7 +106,8 @@ export class StorageService {
         resolve({
           fileName: reqFileName.result || 'Restored File',
           csvText: reqCsv.result,
-          imageMap: map
+          imageMap: map,
+          savedList: reqList.result || [] // Return the list or empty array
         });
       };
       
